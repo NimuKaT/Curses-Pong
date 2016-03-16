@@ -35,7 +35,7 @@ class timer:
 class board:
 	def __init__(self, ply):
 		self.original_board = [[]]
-		self.objects= [pad(1,2,[['|'],['|'],['|'],['|'],['|']]),pad(35,2,[['|'],['|'],['|'],['|'],['|']]),ball(13,13,[['@']])]
+		self.objects= [pad(1,2,[['|'],['|'],['|'],['|'],['|']]),pad(23,2,[['|'],['|'],['|'],['|'],['|']]),ball(13,13,[['@']])]
 		self.players = ply
 		self.inputs= [0,0,0]
 	
@@ -58,37 +58,41 @@ class board:
 			mvaddstr(i,0,"".join(self.original_board[i]))
 		
 	def board_controler(self, inputs):
+		clear()
+		self.print_board()
 		if self.players == 2:
 			self.inputs[0] = inputs[0]
 			self.inputs[1] = inputs[1]
 			self.update_objects()
 			
 		elif self.players == 1:
-			self.inputs[0] = inputs[0:1]
+			self.inputs[0] = inputs[0]
 			self.inputs[1] = self.computer()
 			self.update_objects()
 		
 		else:
 			pass
-			
+		refresh()
+		
 	def update_objects(self):
 		c = 0
 		for o in self.objects:
-			o.update(1)
+			o.update(self.inputs[c])
 			self.coord = o.get_coordinates()
 			self.image = o.get_image()
+			mvaddstr(c,0,str.format("{0}",self.coord[1]))
 			for i in range(len(self.image)): 
-				mvaddstr(self.coord[1]+i,self.coord[0]*2+1,"".join(self.image[i][0]))
+				mvaddstr(self.coord[1]+i,self.coord[0]*3+1,"".join(self.image[i][0]))
 			c+=1
 	
 	def computer(self):
 		
-		return 1
+		return 0
 	
 class object:
 	def __init__(self, x_coordinate, y_coordinate, image):
 		self.x,self.y,self.image = x_coordinate, y_coordinate, image
-		
+		self.velocity = [0,0]
 	def update(self, direction):
 		pass
 
@@ -101,31 +105,36 @@ class object:
 
 class pad(object):
 	def update(self, direction):
-		self.velocity = direction
-		if self.y != 1 or self.y != 19:
-			self.y += self.velocity
-		
+		if self.y >= 1 or self.y <= 10:
+			self.y += direction
+		else:
+			pass
 		
 class ball(object):
 	def update(self, direction):
-		self.flag = False
-		self.velocity = [0,0]
-		if self.velocity[0]+self.x !=0 or self.velocity[0]+self.x != 25:
-			self.x +=self.velocity[0]
-			if self.x < 0 or self.x > 25:
-				self.flag = True
+		
+		if self.velocity[0] + self.x < 0 or self.velocity[0]+self.x > 25:
+			self.x += self.velocity[0]
+			
 		else:
 			pass
 		
-		if self.velocity[1]+self.y !=0 or self.velocity[1]+self.y != 25:
-			self.y +=self.velocity[1]
+		if self.velocity[1] + self.y < 0 or self.velocity[1] + self.y > 25:
+			self.y += self.velocity[1]
+		
 		else:
-			pass
+			
+			if self.velocity[1] + self.y > 0:
+				self.y = abs(self.velocity[1] + self.y)
+			
+			elif self.velocity[1] + self.y < 25:
+				self.y = 50 - self.velocity[1] - self.y
+			
 	
 
 def main():
 	game_board = board(1)
-	game_board.create_board(10,10)
+	game_board.create_board(25,25)
 	
 	HEIGHT = 50
 	WIDTH = 50 
@@ -145,25 +154,24 @@ def main():
 	while True:
 		key_state=[0,0]
 		
-		while system_clock.clock(5):
+		while system_clock.clock(10):
 			key = wgetch(stdscr)
-			if key == ord('w'):
+			if key == ord('a'):
 				key_state[0]= -1
 			elif key == ord('s'):
 				key_state[0]=1
+			elif key == ord('o'):
+				key_state[1]=-1
+			elif key == ord('p'):
+				key_state[1]=1
 			elif key == ord('q'):
 				break
-		
-		clear()
-		game_board.print_board()
+
 		game_board.board_controler(key_state)
-		refresh()
 		
 		if key == ord('q'):
 			break		
 	
-	
-	game_board.board_controler(key_state)
 	refresh()
 	endwin()
 
