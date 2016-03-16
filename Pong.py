@@ -36,7 +36,7 @@ class timer:
 class board:
 	def __init__(self, ply):
 		self.original_board = [[]]
-		self.positions = [[1,2,0],[23,2,0],[13,13,0]]
+		self.positions = [[1,2,[0,0]],[23,2,[0,0]],[13,13,[0,0]]]
 		self.objects= [pad(self.positions[0][0],self.positions[0][1],[['|'],['|'],['|'],['|'],['|']]),
 					pad(self.positions[1][0],self.positions[1][1],[['|'],['|'],['|'],['|'],['|']]),
 					ball(self.positions[2][0],self.positions[2][0],[['@']])]
@@ -69,8 +69,8 @@ class board:
 		self.print_board()
 		if self.players == 2:
 			if self.objects[2].get_flag() == 0:
-				self.inputs[0][0] = inputs[0]
-				self.inputs[1][0] = inputs[1]
+				self.inputs[0][1] = inputs[0]
+				self.inputs[1][1] = inputs[1]
 				self.update_objects()
 			
 			else:
@@ -82,8 +82,8 @@ class board:
 			
 		elif self.players == 1:
 			if self.objects[2].get_flag() == 0:
-				self.inputs[0][0] = inputs[0]
-				self.inputs[1][0] = self.computer()
+				self.inputs[0][1] = inputs[0]
+				self.inputs[1][1] = self.computer()
 				self.update_objects()
 			else:
 				if self.objects[2].get_flag() == 1:
@@ -107,8 +107,15 @@ class board:
 			c+=1
 	
 	def computer(self):
-		
-		return 0
+		self.result = 0
+		if self.positions[2][1] not in range(self.positions[1][1], self.positions[1][1]+4):
+			if self.positions[2][1] > self.positions[1][1]+2:
+				self.result = 1
+			
+			elif self.positions[2][1] < self.positions[1][1]+2:
+				self.result = -1
+			
+		return self.result
 	
 class object:
 	def __init__(self, x_coordinate, y_coordinate, image):
@@ -127,8 +134,24 @@ class object:
 
 class pad(object):
 	def update(self, direction,  positions=0):
-		if self.y + direction[0] >= 1 and self.y + direction[0] <= 19:
-			self.y += direction[0]
+		if direction[1] == 0:
+			if self.velocity[1] != 0:
+				self.velocity[1] += -int(self.velocity[1]/abs(self.velocity[1]))		
+		
+		elif abs(self.velocity[1]+direction[1]) <= 3:
+			self.velocity[1] += direction[1]
+				
+		
+		if self.y + self.velocity[1] >= 1 and self.y + self.velocity[1] <= 19:
+			self.y += self.velocity[1]
+		
+		elif self.y + self.velocity[1] < 1:
+			self.y = 1
+			self.velocity[1] = 0
+			
+		elif self.y + self.velocity[1] > 19:
+			self.y = 19
+			self.velocity[1] = 0
 		
 class ball(object):
 	def __init__(self, x_coordinate, y_coordinate, image):
@@ -181,7 +204,6 @@ class ball(object):
 					self.flag = 1
 				
 			self.velocity[0] = - self.velocity[0]
-		mvaddstr(28,28,str.format("{0}",self.velocity))
 		
 	def get_flag(self):
 		return self.flag
@@ -194,7 +216,7 @@ class ball(object):
 		self.velocity[1] = random.choice([-1,1])
 
 def main():
-	game_board = board(2)
+	game_board = board(1)
 	game_board.create_board(25,25)
 	
 	HEIGHT = 50
@@ -223,7 +245,7 @@ def main():
 	while True:
 		key_state=[0,0]
 		
-		while system_clock.clock(5):
+		while system_clock.clock(2):
 			key = wgetch(stdscr)
 			if key == ord('a'):
 				key_state[0]= -1
