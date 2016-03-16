@@ -122,47 +122,51 @@ class ball(object):
 		else:
 			pass
 	
-		
 
-game_board = board(1)
-game_board.create_board(10,10)
-
-HEIGHT = 50
-WIDTH = 50 
-key = 0 
-stdscr = initscr()
-noecho()
-clear()
-curs_set(0)
-game_win = newwin(HEIGHT, WIDTH, 0, 0)
-game_board.print_board()
-keypad(game_win, True)
-refresh()
-nodelay(stdscr,True)
-system_clock = timer()
-system_clock.start()
-
-while True:
-	key_state=[0,0]
+def main():
+	game_board = board(1)
+	game_board.create_board(10,10)
 	
-	while system_clock.clock(5):
-		key = wgetch(stdscr)
-		if key == ord('w'):
-			key_state[0]= -1
-		elif key == ord('s'):
-			key_state[0]=1
-		elif key == ord('q'):
-			break
-	
+	HEIGHT = 50
+	WIDTH = 50 
+	key = 0 
+	stdscr = initscr()
+	noecho()
 	clear()
+	curs_set(0)
+	game_win = newwin(HEIGHT, WIDTH, 0, 0)
 	game_board.print_board()
+	keypad(game_win, True)
+	refresh()
+	nodelay(stdscr,True)
+	system_clock = timer()
+	system_clock.start()
+	
+	while True:
+		key_state=[0,0]
+		
+		while system_clock.clock(5):
+			key = wgetch(stdscr)
+			if key == ord('w'):
+				key_state[0]= -1
+			elif key == ord('s'):
+				key_state[0]=1
+			elif key == ord('q'):
+				break
+		
+		clear()
+		game_board.print_board()
+		game_board.board_controler(key_state)
+		refresh()
+		
+		if key == ord('q'):
+			break		
+	
+	
 	game_board.board_controler(key_state)
 	refresh()
-	
-	if key == ord('q'):
-		break		
+	endwin()
 
 
-game_board.board_controler(key_state)
-refresh()
-endwin()
+if __name__ == "__main__":
+	main()
