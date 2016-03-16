@@ -136,7 +136,7 @@ def main():
 	curs_set(0)
 	game_win = newwin(HEIGHT, WIDTH, 0, 0)
 	game_board.print_board()
-	keypad(game_win, True)
+	keypad(stdscr, True)
 	refresh()
 	nodelay(stdscr,True)
 	system_clock = timer()
