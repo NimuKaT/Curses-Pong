@@ -1,5 +1,6 @@
 import time
 from unicurses import *	
+import random
 
 class timer:
 	def __init__(self):
@@ -40,7 +41,8 @@ class board:
 					pad(self.positions[1][0],self.positions[1][1],[['|'],['|'],['|'],['|'],['|']]),
 					ball(self.positions[2][0],self.positions[2][0],[['@']])]
 		self.players = ply
-		self.inputs= [[0,0],[0,0],[0,0]]
+		self.inputs = [[0,0],[0,0],[0,0]]
+		self.score = [0,0] 
 		
 	def create_board(self,wt, ht):
 		self.width, self.height = wt, ht
@@ -59,6 +61,8 @@ class board:
 	def print_board(self):
 		for i in range(0,len(self.original_board)):
 			mvaddstr(i,0,"".join(self.original_board[i]))
+			
+		mvaddstr(27, 20, str.format("Player 1: {0} || Player 2: {1}",self.score[0], self.score[1] ))
 		
 	def board_controler(self, inputs):
 		clear()
@@ -70,7 +74,11 @@ class board:
 				self.update_objects()
 			
 			else:
-				pass
+				if self.objects[2].get_flag() == 1:
+					self.score[0] += 1
+				elif self.objects[2].get_flag() == 2:
+					self.score[1] += 1
+				self.objects[2].reset_ball()
 			
 		elif self.players == 1:
 			if self.objects[2].get_flag() == 0:
@@ -78,7 +86,11 @@ class board:
 				self.inputs[1][0] = self.computer()
 				self.update_objects()
 			else:
-				pass
+				if self.objects[2].get_flag() == 1:
+					self.score[0] += 1
+				elif self.objects[2].get_flag() == 2:
+					self.score[1] += 1
+				self.objects[2].reset_ball()
 			
 		else:
 			pass
@@ -138,23 +150,22 @@ class ball(object):
 				
 			self.velocity[1] = -self.velocity[1]
 		
+		
 		if self.velocity[0] + self.x > 1 and self.velocity[0]+self.x < 23:
 			self.x += self.velocity[0]
 		
-			mvaddstr(27,27,str.format("{0}",self.y))
-		
 		else:
 			if self.velocity[0] + self.x <= 1:
-				if self.y in range(positions[0][1],positions[0][1]+4):
-					self.x -= self.velocity[0] + self.x
+				if self.y in range(positions[0][1],positions[0][1]+5):
+					self.x -= self.velocity[0] - self.x + 1
 					
 				else:
 					self.x = 1
 					self.flag = 2
 					
 			elif self.velocity[0] + self.x >= 23:
-				if self.y in range(positions[1][1],positions[1][1]+4):
-					self.x = 47 - self.velocity[0] + self.x
+				if self.y in range(positions[1][1],positions[1][1]+5):
+					self.x = 45 - self.velocity[0] - self.x
 				
 				else:
 					self.x = 23
@@ -165,6 +176,12 @@ class ball(object):
 	def get_flag(self):
 		return self.flag
 	
+	def reset_ball(self):
+		self.flag = 0
+		self.x = 13
+		self.y = 13
+		self.velocity[0] = -self.velocity[0]
+		self.velocity[1] = random.choice([-1,1])
 
 def main():
 	game_board = board(2)
@@ -184,9 +201,9 @@ def main():
 	refresh()
 	nodelay(stdscr,True)
 	
-	init_pair(1, COLOR_RED, COLOR_BLACK)
-	init_pair(2, COLOR_GREEN, COLOR_BLACK)
-	init_pair(3, COLOR_MAGENTA, COLOR_BLACK)
+	init_pair(1, COLOR_RED, COLOR_WHITE)
+	init_pair(2, COLOR_GREEN, COLOR_WHITE)
+	init_pair(3, COLOR_MAGENTA, COLOR_WHITE)
 	init_pair(4, COLOR_BLACK, COLOR_WHITE)
 	bkgd(COLOR_PAIR(4))
 	
