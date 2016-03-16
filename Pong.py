@@ -36,7 +36,7 @@ class timer:
 class board:
 	def __init__(self, ply):
 		self.original_board = [[]]
-		self.positions = [[1,2,[0,0]],[23,2,[0,0]],[13,13,[0,0]]]
+		self.positions = [[1,10,[0,0]],[23,10,[0,0]],[13,13,[0,0]]]
 		self.objects= [pad(self.positions[0][0],self.positions[0][1],[['|'],['|'],['|'],['|'],['|']]),
 					pad(self.positions[1][0],self.positions[1][1],[['|'],['|'],['|'],['|'],['|']]),
 					ball(self.positions[2][0],self.positions[2][0],[['@']])]
@@ -83,7 +83,7 @@ class board:
 		elif self.players == 1:
 			if self.objects[2].get_flag() == 0:
 				self.inputs[0][1] = inputs[0]
-				self.inputs[1][1] = self.computer()
+				self.inputs[1][1] = self.computer(1)
 				self.update_objects()
 			else:
 				if self.objects[2].get_flag() == 1:
@@ -92,8 +92,17 @@ class board:
 					self.score[1] += 1
 				self.objects[2].reset_ball()
 			
-		else:
-			pass
+		elif self.players == 3:
+			if self.objects[2].get_flag() == 0:
+				self.inputs[0][1] = self.computer(0)
+				self.inputs[1][1] = self.computer(1)
+				self.update_objects()
+			else:
+				if self.objects[2].get_flag() == 1:
+					self.score[0] += 1
+				elif self.objects[2].get_flag() == 2:
+					self.score[1] += 1
+				self.objects[2].reset_ball() 
 		refresh()
 		
 	def update_objects(self):
@@ -106,13 +115,13 @@ class board:
 				mvaddstr(self.positions[c][1]+i,self.positions[c][0]*3+1,"".join(self.image[i][0]),COLOR_PAIR(c+1))
 			c+=1
 	
-	def computer(self):
+	def computer(self, pn):
 		self.result = 0
-		if self.positions[2][1] not in range(self.positions[1][1], self.positions[1][1]+4):
-			if self.positions[2][1] > self.positions[1][1]+2:
+		if self.positions[2][1] != self.positions[pn][1]+2:
+			if self.positions[2][1] > self.positions[pn][1]+2:
 				self.result = 1
 			
-			elif self.positions[2][1] < self.positions[1][1]+2:
+			elif self.positions[2][1] < self.positions[pn][1]+2:
 				self.result = -1
 			
 		return self.result
@@ -136,10 +145,13 @@ class pad(object):
 	def update(self, direction,  positions=0):
 		if direction[1] == 0:
 			if self.velocity[1] != 0:
-				self.velocity[1] += -int(self.velocity[1]/abs(self.velocity[1]))		
+				self.velocity[1] = 0	
 		
 		elif abs(self.velocity[1]+direction[1]) <= 3:
-			self.velocity[1] += direction[1]
+			if abs(self.velocity[1]+direction[1]) > abs(self.velocity[1]):
+				self.velocity[1] += direction[1]
+			else:
+				self.velocity[1] = direction[1]
 				
 		
 		if self.y + self.velocity[1] >= 1 and self.y + self.velocity[1] <= 19:
@@ -181,7 +193,7 @@ class ball(object):
 		else:
 			if self.velocity[0] + self.x <= 1:
 				if self.y in range(positions[0][1],positions[0][1]+5):
-					if positions[0][2][1] == 0:
+					if positions[0][2][1] == 0 and self.velocity[0] > -2:
 						self.velocity[0] -= 1
 					else:
 						self.velocity[1] += positions[0][2][1]
@@ -193,7 +205,7 @@ class ball(object):
 					
 			elif self.velocity[0] + self.x >= 23:
 				if self.y in range(positions[1][1],positions[1][1]+5):
-					if positions[1][2][1] == 0:
+					if positions[1][2][1] == 0 and self.velocity[0] < 2:
 						self.velocity[0] += 1
 					else:
 						self.velocity[1] += positions[1][2][1]
@@ -213,10 +225,10 @@ class ball(object):
 		self.x = 13
 		self.y = 13
 		self.velocity[0] = -int(self.velocity[0]/abs(self.velocity[0]))
-		self.velocity[1] = random.choice([-1,1])
+		self.velocity[1] = random.choice([-2,-1,1,2])
 
 def main():
-	game_board = board(1)
+	game_board = board(3)
 	game_board.create_board(25,25)
 	
 	HEIGHT = 50
@@ -245,7 +257,7 @@ def main():
 	while True:
 		key_state=[0,0]
 		
-		while system_clock.clock(2):
+		while system_clock.clock(10):
 			key = wgetch(stdscr)
 			if key == ord('a'):
 				key_state[0]= -1
