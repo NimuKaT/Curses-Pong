@@ -1,2 +1,2 @@
-Pong.py
+python Pong.py
 pause
