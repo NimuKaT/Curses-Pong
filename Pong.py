@@ -36,7 +36,7 @@ class timer:
 class board:
 	def __init__(self, ply):
 		self.original_board = [[]]
-		self.positions = [[1,10,[0,0]],[23,10,[0,0]],[13,13,[0,0]]]
+		self.positions = [[1,10,[0,0]],[23,10,[0,0]],[13,13,[1,1]]]
 		self.objects= [pad(self.positions[0][0],self.positions[0][1],[['|'],['|'],['|'],['|'],['|']]),
 					pad(self.positions[1][0],self.positions[1][1],[['|'],['|'],['|'],['|'],['|']]),
 					ball(self.positions[2][0],self.positions[2][0],[['@']])]
