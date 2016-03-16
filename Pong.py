@@ -36,7 +36,7 @@ class timer:
 class board:
 	def __init__(self, ply):
 		self.original_board = [[]]
-		self.positions = [[1,2],[23,2],[13,13]]
+		self.positions = [[1,2,0],[23,2,0],[13,13,0]]
 		self.objects= [pad(self.positions[0][0],self.positions[0][1],[['|'],['|'],['|'],['|'],['|']]),
 					pad(self.positions[1][0],self.positions[1][1],[['|'],['|'],['|'],['|'],['|']]),
 					ball(self.positions[2][0],self.positions[2][0],[['@']])]
@@ -113,12 +113,13 @@ class board:
 class object:
 	def __init__(self, x_coordinate, y_coordinate, image):
 		self.x,self.y,self.image = x_coordinate, y_coordinate, image
-	
+		self.velocity = [0,0]
+		
 	def update(self, direction):
 		pass
 
 	def get_coordinates(self):
-		return [self.x, self.y]
+		return [self.x, self.y, self.velocity]
 		
 	def get_image(self):
 		return self.image
@@ -157,6 +158,10 @@ class ball(object):
 		else:
 			if self.velocity[0] + self.x <= 1:
 				if self.y in range(positions[0][1],positions[0][1]+5):
+					if positions[0][2][1] == 0:
+						self.velocity[0] -= 1
+					else:
+						self.velocity[1] += positions[0][2][1]
 					self.x -= self.velocity[0] - self.x + 1
 					
 				else:
@@ -165,6 +170,10 @@ class ball(object):
 					
 			elif self.velocity[0] + self.x >= 23:
 				if self.y in range(positions[1][1],positions[1][1]+5):
+					if positions[1][2][1] == 0:
+						self.velocity[0] += 1
+					else:
+						self.velocity[1] += positions[1][2][1]
 					self.x = 45 - self.velocity[0] - self.x
 				
 				else:
@@ -172,6 +181,7 @@ class ball(object):
 					self.flag = 1
 				
 			self.velocity[0] = - self.velocity[0]
+		mvaddstr(28,28,str.format("{0}",self.velocity))
 		
 	def get_flag(self):
 		return self.flag
@@ -180,7 +190,7 @@ class ball(object):
 		self.flag = 0
 		self.x = 13
 		self.y = 13
-		self.velocity[0] = -self.velocity[0]
+		self.velocity[0] = -int(self.velocity[0]/abs(self.velocity[0]))
 		self.velocity[1] = random.choice([-1,1])
 
 def main():
