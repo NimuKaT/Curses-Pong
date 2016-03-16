@@ -35,9 +35,13 @@ class timer:
 class board:
 	def __init__(self, ply):
 		self.original_board = [[]]
-		self.objects= [pad(1,2,[['|'],['|'],['|'],['|'],['|']]),pad(23,2,[['|'],['|'],['|'],['|'],['|']]),ball(13,13,[['@']])]
+		self.positions = [[1,2],[23,2],[13,13]]
+		self.objects= [pad(self.positions[0][0],self.positions[0][1],[['|'],['|'],['|'],['|'],['|']]),
+					pad(self.positions[1][0],self.positions[1][1],[['|'],['|'],['|'],['|'],['|']]),
+					ball(self.positions[2][0],self.positions[2][0],[['@']])]
 		self.players = ply
 		self.inputs= [[0,0],[0,0],[0,0]]
+		
 	
 	def create_board(self,wt, ht):
 		self.width, self.height = wt, ht
@@ -78,10 +82,10 @@ class board:
 		c = 0
 		for o in self.objects:
 			o.update(self.inputs[c])
-			self.coord = o.get_coordinates()
+			self.positions[c] = o.get_coordinates()
 			self.image = o.get_image()
 			for i in range(len(self.image)): 
-				mvaddstr(self.coord[1]+i,self.coord[0]*3+1,"".join(self.image[i][0]))
+				mvaddstr(self.positions[c][1]+i,self.positions[c][0]*3+1,"".join(self.image[i][0]))
 			c+=1
 	
 	def computer(self):
@@ -91,7 +95,7 @@ class board:
 class object:
 	def __init__(self, x_coordinate, y_coordinate, image):
 		self.x,self.y,self.image = x_coordinate, y_coordinate, image
-		self.velocity = [0,0]
+		self.velocity = [1,1]
 	def update(self, direction):
 		pass
 
@@ -110,22 +114,38 @@ class pad(object):
 class ball(object):
 	def update(self, direction, positions=0):
 		
-		if self.velocity[0] + self.x < 0 or self.velocity[0]+self.x > 25:
+		if self.velocity[0] + self.x > 1 and self.velocity[0]+self.x < 23:
 			self.x += self.velocity[0]
 			
 		else:
-			pass
+			if self.velocity[0] + self.x < 1:
+				if self.y in range(1,position[0][1]):
+					self.x -= self.velocity[0] + self.x
+				
+				else:
+					pass
+				
+			elif self.velocity[0] + self.x > 24:
+				if self.y in range(1,position[1][1]):
+					self.x = 47 - self.velocity[0] + self.x
+					
+				else:
+					pass
+					
+			self.velocity[0] = - self.velocity[0]				
 		
-		if self.velocity[1] + self.y < 0 or self.velocity[1] + self.y > 25:
+		if self.velocity[1] + self.y > 0 and self.velocity[1] + self.y < 24:
 			self.y += self.velocity[1]
 		
 		else:
 			
-			if self.velocity[1] + self.y > 0:
+			if self.velocity[1] + self.y < 0:
 				self.y = abs(self.velocity[1] + self.y)
 			
-			elif self.velocity[1] + self.y < 25:
-				self.y = 50 - self.velocity[1] - self.y
+			elif self.velocity[1] + self.y > 25:
+				self.y = 49 - self.velocity[1] - self.y
+				
+			self.velocity[1] = -self.velocity[1]
 			
 	
 
