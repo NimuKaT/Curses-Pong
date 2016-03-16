@@ -37,6 +37,7 @@ class board:
 	def __init__(self, ply):
 		self.original_board = [[]]
 		self.positions = [[1,10,[0,0]],[23,10,[0,0]],[13,13,[1,1]]]
+		self.positions = [[1,2,[0,0]],[23,2,[0,0]],[13,13,[0,0]]]
 		self.objects= [pad(self.positions[0][0],self.positions[0][1],[['|'],['|'],['|'],['|'],['|']]),
 					pad(self.positions[1][0],self.positions[1][1],[['|'],['|'],['|'],['|'],['|']]),
 					ball(self.positions[2][0],self.positions[2][0],[['@']])]
@@ -102,7 +103,7 @@ class board:
 					self.score[0] += 1
 				elif self.objects[2].get_flag() == 2:
 					self.score[1] += 1
-				self.objects[2].reset_ball() 
+				self.objects[2].reset_ball()
 		refresh()
 		
 	def update_objects(self):
@@ -145,7 +146,7 @@ class pad(object):
 	def update(self, direction,  positions=0):
 		if direction[1] == 0:
 			if self.velocity[1] != 0:
-				self.velocity[1] = 0	
+				self.velocity[1] = 0			
 		
 		elif abs(self.velocity[1]+direction[1]) <= 3:
 			if abs(self.velocity[1]+direction[1]) > abs(self.velocity[1]):
